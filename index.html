@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-br" class="scroll-smooth">
+<html lang="pt-br" class="scroll-smooth dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Atlas de Strains • Growlab</title>
+    <title>Terp Atlas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script>
@@ -19,27 +19,37 @@
       }
     </script>
     <style>
-      .tooltip{position:absolute;pointer-events:none;opacity:0;transition:opacity .15s}
       .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:50}
     </style>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center px-4 md:px-6 py-8 font-sans">
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center px-4 md:px-6 py-8 font-sans text-base md:text-lg">
     <!-- Header -->
     <header class="w-full max-w-6xl mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
       <h1 class="text-3xl md:text-4xl font-extrabold text-center md:text-left drop-shadow-sm">
-        Atlas de <span class="text-teal-600 dark:text-teal-400">Strains</span> por Efeito
+        Terp Atlas
       </h1>
       <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
         <input id="search" type="search" placeholder="Buscar efeito, aroma, strain…" class="flex-1 sm:w-80 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/80"/>
-        <select id="timeFilter" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none">
-          <option value="all">Qualquer horário</option>
-          <option value="morning">Manhã</option>
-          <option value="afternoon">Tarde</option>
-          <option value="night">Noite</option>
-        </select>
+        <div id="timeFilter" class="flex flex-wrap gap-2">
+          <label class="cursor-pointer">
+            <input type="radio" name="time" value="all" class="peer sr-only" checked>
+            <span class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 peer-checked:bg-teal-600 peer-checked:text-white text-sm">Qualquer horário</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="time" value="morning" class="peer sr-only">
+            <span class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 peer-checked:bg-teal-600 peer-checked:text-white text-sm">Manhã</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="time" value="afternoon" class="peer sr-only">
+            <span class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 peer-checked:bg-teal-600 peer-checked:text-white text-sm">Tarde</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="time" value="night" class="peer sr-only">
+            <span class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 peer-checked:bg-teal-600 peer-checked:text-white text-sm">Noite</span>
+          </label>
+        </div>
         <button id="inspireBtn" class="px-4 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition whitespace-nowrap text-sm">Inspire‑me</button>
         <button id="toggleView" class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition text-sm" aria-label="Alternar visualização">Cards</button>
-        <button id="themeToggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600" aria-label="Alternar tema">🌙</button>
       </div>
     </header>
 
@@ -56,7 +66,6 @@
           <div>
             <h3 class="font-semibold mb-1">Strains indicadas</h3>
             <ul id="info-strains" class="grid grid-cols-1 sm:grid-cols-2 gap-1"></ul>
-            <p class="text-xs text-gray-500 mt-1">⭐ = já cultivada</p>
           </div>
         </div>
       </aside>
@@ -69,13 +78,10 @@
         </div>
         <!-- Card Grid -->
         <div id="cardGrid" class="hidden w-full grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <!-- Legend -->
-        <div id="legend" class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-center"></div>
       </section>
-    </main>
 
-    <!-- Tooltip -->
-    <div id="tooltip" class="tooltip bg-gray-900 dark:bg-gray-200 text-gray-50 dark:text-gray-900 px-3 py-1.5 rounded-md text-xs shadow-lg"></div>
+    <footer class="mt-8 text-xs text-gray-500 text-center">Feito com Tailwind e D3.js</footer>
+    </main>
 
     <!-- Modal -->
     <template id="modalTmpl">
@@ -132,18 +138,21 @@
     ];
 
     /* ------------------ STATE ------------------ */
-    let wheelVisible=true;const grownStrains=new Set(JSON.parse(localStorage.getItem('grownStrains')||'[]'));
+    let wheelVisible=true;
 
     /* ------------------ WHEEL ------------------ */
     const size=Math.min(600,window.innerWidth-40);let radius=size/2;
     const svg=d3.select('#wheel').append('svg').attr('width',size).attr('height',size).append('g').attr('transform',`translate(${radius},${radius})`);
     const pie=d3.pie().sort(null).value(1);let arc=d3.arc().outerRadius(radius-8).innerRadius(radius*.45);let labelArc=d3.arc().outerRadius(radius*.8).innerRadius(radius*.8);
-    const tooltip=d3.select('#tooltip');
     const slices=svg.selectAll('path').data(pie(data)).enter().append('path').attr('d',arc).attr('fill',d=>d.data.color).attr('stroke','#fff').attr('stroke-width',2).style('cursor','pointer')
-      .on('mousemove',(e,d)=>{tooltip.style('opacity',1).html(`<strong>${d.data.category}</strong>`).style('left',e.pageX+12+'px').style('top',e.pageY-28+'px');})
-      .on('mouseout',()=>tooltip.style('opacity',0))
       .on('click',(_,d)=>showInfo(d.data));
-    svg.selectAll('text').data(pie(data)).enter().append('text').attr('transform',d=>`translate(${labelArc.centroid(d)}) rotate(${angle(d)})`).attr('text-anchor','middle').attr('dominant-baseline','middle').attr('class','text-[10px] sm:text-xs font-semibold fill-white pointer-events-none').text(d=>d.data.clade);
+    const labels=svg.selectAll('text').data(pie(data)).enter().append('text')
+      .attr('transform',d=>`translate(${labelArc.centroid(d)}) rotate(${angle(d)})`)
+      .attr('text-anchor','middle')
+      .attr('dominant-baseline','middle')
+      .attr('class','fill-white pointer-events-none text-[10px] sm:text-xs');
+    labels.append('tspan').attr('x',0).text(d=>d.data.clade).attr('class','font-semibold');
+    labels.append('tspan').attr('x',0).attr('dy','1.2em').text(d=>d.data.category).attr('class','text-[8px] sm:text-[10px]');
     function angle(d){const a=((d.startAngle+d.endAngle)/2)*(180/Math.PI);return(a>90&&a<270)?a+180:a;}
 
     /* Beauty gradient */
@@ -152,30 +161,48 @@
 
     /* ------------------ CARD GRID ------------------ */
     const cardGrid=document.getElementById('cardGrid');
-    function renderCards(){cardGrid.innerHTML='';const q=searchInput.value.toLowerCase();const t=timeFilter.value;data.forEach(cat=>{if(t!=='all'&&!cat.times.includes(t))return;const matchCat=cat.category.toLowerCase().includes(q)||cat.clade.toLowerCase().includes(q);let catMatches=false;const strains=cat.strains.filter(s=>{const m=s.name.toLowerCase().includes(q)||matchCat;catMatches=catMatches||m;return m;});if(!strains.length)return;const section=document.createElement('div');section.className='col-span-full';section.innerHTML=`<h3 class='text-lg font-semibold mb-2 flex items-center gap-2'><span class='w-4 h-4 rounded-full inline-block' style='background:${cat.color}'></span>${cat.category}</h3>`;cardGrid.appendChild(section);strains.forEach(s=>{const card=document.createElement('div');card.className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow flex flex-col gap-2';card.innerHTML=`<div class='flex justify-between'><h4 class='font-bold'>${s.name}</h4><button class='text-lg'>${grownStrains.has(s.name)?'⭐':'☆'}</button></div><p class='text-xs text-gray-500 dark:text-gray-400'>${cat.clade}</p><p class='text-sm'>${cat.effects}</p>`;card.querySelector('button').addEventListener('click',()=>toggleGrow(s.name,renderCards));card.addEventListener('click',e=>{if(e.target.tagName==='BUTTON')return;openModal(s);});cardGrid.appendChild(card);});});}
+    function renderCards(){
+      cardGrid.innerHTML='';
+      const q=searchInput.value.toLowerCase();
+      const t=getTime();
+      data.forEach(cat=>{
+        if(t!=='all'&&!cat.times.includes(t))return;
+        const matchCat=cat.category.toLowerCase().includes(q)||cat.clade.toLowerCase().includes(q);
+        const strains=cat.strains.filter(s=>{
+          const m=s.name.toLowerCase().includes(q)||matchCat;
+          return m;
+        });
+        if(!strains.length)return;
+        const section=document.createElement('div');
+        section.className='col-span-full';
+        section.innerHTML=`<h3 class='text-lg font-semibold mb-2 flex items-center gap-2'><span class='w-4 h-4 rounded-full inline-block' style='background:${cat.color}'></span>${cat.clade} - ${cat.category}</h3>`;
+        cardGrid.appendChild(section);
+        strains.forEach(s=>{
+          const card=document.createElement('div');
+          card.className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow flex flex-col gap-2';
+          card.innerHTML=`<div class='flex justify-between'><h4 class='font-bold'>${s.name}</h4></div><p class='text-xs text-gray-500 dark:text-gray-400'>${cat.clade}</p><p class='text-sm'>${cat.effects}</p>`;
+          card.addEventListener('click',()=>openModal(s));
+          cardGrid.appendChild(card);
+        });
+      });
+    }
 
-    /* ------------------ LEGEND ------------------ */
-    const legend=document.getElementById('legend');
-    data.forEach(d=>{const div=document.createElement('div');div.className='flex items-center gap-2 justify-center';div.innerHTML=`<span class='w-4 h-4 rounded-full inline-block' style='background:${d.color}'></span><span>${d.clade}</span>`;legend.appendChild(div);});
 
     /* ------------------ INFO PANEL ------------------ */
-    let currentData=null;function showInfo(item){currentData=item;const panel=document.getElementById('info');panel.classList.remove('hidden');document.getElementById('info-title').textContent=item.category;document.getElementById('info-clade').textContent=`Clade: ${item.clade}`;document.getElementById('info-aroma').textContent=item.aroma;document.getElementById('info-bp').textContent=item.bp;document.getElementById('info-effects').textContent=item.effects;document.getElementById('info-uses').textContent=item.uses||'—';const list=document.getElementById('info-strains');list.innerHTML='';item.strains.forEach(s=>{const btn=document.createElement('button');btn.className='bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-2 py-1 rounded flex items-center gap-1 text-xs';btn.innerHTML=`${grownStrains.has(s.name)?'⭐':'☆'}<span>${s.name}</span>`;btn.addEventListener('click',()=>openModal(s));list.appendChild(btn);});if(window.innerWidth<1024)panel.scrollIntoView({behavior:'smooth'});}  
+    let currentData=null;function showInfo(item){currentData=item;const panel=document.getElementById('info');panel.classList.remove('hidden');document.getElementById('info-title').textContent=item.category;document.getElementById('info-clade').textContent=`Clade: ${item.clade}`;document.getElementById('info-aroma').textContent=item.aroma;document.getElementById('info-bp').textContent=item.bp;document.getElementById('info-effects').textContent=item.effects;document.getElementById('info-uses').textContent=item.uses||'—';const list=document.getElementById('info-strains');list.innerHTML='';item.strains.forEach(s=>{const btn=document.createElement('button');btn.className='bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-2 py-1 rounded text-xs';btn.textContent=s.name;btn.addEventListener('click',()=>openModal(s));list.appendChild(btn);});if(window.innerWidth<1024)panel.scrollIntoView({behavior:'smooth'});}
 
     /* ------------------ MODAL ------------------ */
     function openModal(strain){const tmpl=document.getElementById('modalTmpl');const modal=tmpl.content.firstElementChild.cloneNode(true);modal.querySelector('#modal-name').textContent=strain.name;modal.querySelector('#modal-type').textContent=strain.type;modal.querySelector('#modal-genetics').textContent=strain.genetics;modal.querySelector('#modal-flower').textContent=strain.flower;modal.querySelector('#modal-yield').textContent=strain.yield;modal.querySelector('#modal-thc').textContent=strain.thc+' / '+(strain.cbd||'—');modal.querySelector('#modal-diff').textContent=strain.difficulty;modal.querySelector('#modal-notes').textContent=strain.notes||'';document.body.appendChild(modal);modal.classList.remove('hidden');modal.addEventListener('click',e=>{if(e.target===modal||e.target.tagName==='BUTTON')modal.remove();});}
 
     /* ------------------ GROWN STAR ------------------ */
-    function toggleGrow(name,rerender){if(grownStrains.has(name)){grownStrains.delete(name);}else{grownStrains.add(name);}localStorage.setItem('grownStrains',JSON.stringify([...grownStrains]));if(rerender)rerender();else showInfo(currentData);}  
 
     /* ------------------ FILTERS ------------------ */
-    const searchInput=document.getElementById('search');const timeFilter=document.getElementById('timeFilter');function applyFilters(){const q=searchInput.value.toLowerCase();const t=timeFilter.value;slices.each(function(d){const matchesText=!q||d.data.category.toLowerCase().includes(q)||d.data.clade.toLowerCase().includes(q)||d.data.aroma.toLowerCase().includes(q)||d.data.effects.toLowerCase().includes(q)||d.data.strains.some(s=>s.name.toLowerCase().includes(q));const matchesTime=t==='all'||d.data.times.includes(t);d3.select(this).attr('opacity',(matchesText&&matchesTime)?1:0.15);});if(!wheelVisible)renderCards();}
-    searchInput.addEventListener('input',applyFilters);timeFilter.addEventListener('change',applyFilters);
+    const searchInput=document.getElementById('search');const timeRadios=document.querySelectorAll('input[name="time"]');function getTime(){const c=document.querySelector('input[name="time"]:checked');return c?c.value:'all';}function applyFilters(){const q=searchInput.value.toLowerCase();const t=getTime();slices.each(function(d){const matchesText=!q||d.data.category.toLowerCase().includes(q)||d.data.clade.toLowerCase().includes(q)||d.data.aroma.toLowerCase().includes(q)||d.data.effects.toLowerCase().includes(q)||d.data.strains.some(s=>s.name.toLowerCase().includes(q));const matchesTime=t==='all'||d.data.times.includes(t);d3.select(this).attr('opacity',(matchesText&&matchesTime)?1:0.15);});if(!wheelVisible)renderCards();}
+    searchInput.addEventListener('input',applyFilters);timeRadios.forEach(r=>r.addEventListener('change',applyFilters));
 
     /* ------------------ INSPIRE ------------------ */
-    document.getElementById('inspireBtn').addEventListener('click',()=>{const t=timeFilter.value;const filtered=data.filter(d=>t==='all'||d.times.includes(t));const random=filtered[Math.floor(Math.random()*filtered.length)];wheelVisible?showInfo(random):openModal(random.strains[Math.floor(Math.random()*random.strains.length)]);});
+    document.getElementById('inspireBtn').addEventListener('click',()=>{const t=getTime();const filtered=data.filter(d=>t==='all'||d.times.includes(t));const random=filtered[Math.floor(Math.random()*filtered.length)];wheelVisible?showInfo(random):openModal(random.strains[Math.floor(Math.random()*random.strains.length)]);});
 
-    /* ------------------ THEME ------------------ */
-    document.getElementById('themeToggle').addEventListener('click',()=>document.documentElement.classList.toggle('dark'));
 
     /* ------------------ VIEW TOGGLE ------------------ */
     const toggleBtn=document.getElementById('toggleView');toggleBtn.addEventListener('click',()=>{wheelVisible=!wheelVisible;document.getElementById('wheelWrapper').classList.toggle('hidden',!wheelVisible);cardGrid.classList.toggle('hidden',wheelVisible);toggleBtn.textContent=wheelVisible?'Cards':'Roda';if(!wheelVisible)renderCards();else applyFilters();});
