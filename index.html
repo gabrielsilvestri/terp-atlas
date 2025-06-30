@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Atlas de Strains • Growlab</title>
+    <title>Terpene Map • Growlab</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script>
@@ -27,7 +27,7 @@
     <!-- Header -->
     <header class="w-full max-w-6xl mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
       <h1 class="text-3xl md:text-4xl font-extrabold text-center md:text-left drop-shadow-sm">
-        Atlas de <span class="text-teal-600 dark:text-teal-400">Strains</span> por Efeito
+        <span class="text-teal-600 dark:text-teal-400">Mapa de Terpenos</span>
       </h1>
       <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
         <input id="search" type="search" placeholder="Buscar efeito, aroma, strain…" class="flex-1 sm:w-80 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/80"/>
@@ -66,6 +66,7 @@
         <!-- Wheel -->
         <div id="wheelWrapper" class="relative">
           <div id="wheel"></div>
+          <div id="centerTitle" class="absolute inset-0 flex items-center justify-center pointer-events-none font-bold text-lg">🧭 Terpene Map</div>
         </div>
         <!-- Card Grid -->
         <div id="cardGrid" class="hidden w-full grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -99,33 +100,33 @@
     <script>
     /* ------------------ DATA ------------------ */
     const data=[
-      {category:"Relaxamento corporal / Sedativo",clade:"Mirceno",color:"#f97316",aroma:"Manga madura, terra úmida, cravo",bp:"166 °C",effects:"Sedativo; potencializa THC (couch-lock)",uses:"Ansiedade, espasmos, dor",times:["night"],strains:[
+      {icon:"🌿",category:"Relaxamento corporal / Sedativo",clade:"Mirceno",color:"#FDBA74",aroma:"Manga madura, terra úmida, cravo",bp:"166 °C",effects:"Sedativo; potencializa THC (couch-lock)",uses:"Ansiedade, espasmos, dor",times:["night"],strains:[
         {name:"Orange Bud",type:"Fotoperíodo",genetics:"Skunk #1 x unknown",flower:"8‑9 sem",yield:"450‑500 g/m²",thc:"16‑18%",cbd:"<1%",difficulty:"Fácil",notes:"Perfil cítrico de laranja; boa para extrações.",size:"compact"},
         {name:"Skunk #1",type:"Fotoperíodo",genetics:"Afghani x Acapulco Gold x Colombian",flower:"8 sem",yield:"600 g/m²",thc:"18‑22%",cbd:"≈0.5%",difficulty:"Fácil",notes:"Clássica estável; potente odor.",size:"medium"},
         {name:"Blue Dream",type:"Fotoperíodo",genetics:"Blueberry x Haze",flower:"9‑10 sem",yield:"High",thc:"17‑24%",cbd:"~2%",difficulty:"Média",notes:"Euforia suave; sweet berry.",size:"tall"},
         {name:"White Widow",type:"Fotoperíodo",genetics:"Brazilian Sativa x South Indian Indica",flower:"8‑9 sem",yield:"High",thc:"20‑25%",cbd:"≈1%",difficulty:"Média",notes:"Resin monster; efeito equilibrado.",size:"medium"}
       ]},
-      {category:"Elevação de humor / Ansiolítico",clade:"Limoneno",color:"#facc15",aroma:"Casca de limão, laranja, mentolado",bp:"176 °C",effects:"Boost de humor, diminui ansiedade",uses:"Depressão, refluxo (GERD)",times:["morning","afternoon"],strains:[
+      {icon:"🍋",category:"Elevação de humor / Ansiolítico",clade:"Limoneno",color:"#FDE047",aroma:"Casca de limão, laranja, mentolado",bp:"176 °C",effects:"Boost de humor, diminui ansiedade",uses:"Depressão, refluxo (GERD)",times:["morning","afternoon"],strains:[
         {name:"Super Lemon Haze",type:"Fotoperíodo",genetics:"Lemon Skunk x Super Silver Haze",flower:"9‑10 sem",yield:"700 g/m²",thc:"19‑22%",cbd:"<1%",difficulty:"Média",notes:"Premiada; perfil intenso de limão.",size:"tall"},
         {name:"Do-Si-Dos",type:"Fotoperíodo",genetics:"GSC x Face Off OG",flower:"8‑9 sem",yield:"500 g/m²",thc:"21‑25%",cbd:"<1%",difficulty:"Média",notes:"Entrega relaxamento com clareza mental.",size:"medium"}
       ]},
-      {category:"Anti-inflamatório / Sem euforia",clade:"Cariofileno & Humuleno",color:"#4ade80",aroma:"Pimenta-do-reino, lúpulo",bp:"199 °C",effects:"Agonista CB2; relaxa sem sedar",uses:"Artrite, colite, ansiedade",times:["afternoon","night"],strains:[
+      {icon:"🌶️",category:"Anti-inflamatório / Sem euforia",clade:"Cariofileno & Humuleno",color:"#BBF7D0",aroma:"Pimenta-do-reino, lúpulo",bp:"199 °C",effects:"Agonista CB2; relaxa sem sedar",uses:"Artrite, colite, ansiedade",times:["afternoon","night"],strains:[
         {name:"Girl Scout Cookies",type:"Fotoperíodo",genetics:"OG Kush x Durban Poison",flower:"9‑10 sem",yield:"500 g/m²",thc:"22‑26%",cbd:"≈1%",difficulty:"Média",notes:"Potente; sabor doce-terroso.",size:"medium"},
         {name:"Bubba Kush",type:"Fotoperíodo",genetics:"Northern Lights x OG Kush",flower:"8‑9 sem",yield:"400 g/m²",thc:"18‑22%",cbd:"≈1%",difficulty:"Fácil",notes:"Efeito calmante profundo.",size:"compact"}
       ]},
-      {category:"Clareza mental / Foco",clade:"Pineno",color:"#5eead4",aroma:"Pinheiro, alecrim, resina",bp:"155 °C",effects:"Alerta e broncodilatador",uses:"Asma, fadiga, inflamação",times:["morning","afternoon"],strains:[
+      {icon:"🌲",category:"Clareza mental / Foco",clade:"Pineno",color:"#99F6E4",aroma:"Pinheiro, alecrim, resina",bp:"155 °C",effects:"Alerta e broncodilatador",uses:"Asma, fadiga, inflamação",times:["morning","afternoon"],strains:[
         {name:"Harlequin",type:"Fotoperíodo",genetics:"Colombian Gold x Nepali Indica x Thai x Swiss Sativa",flower:"8‑9 sem",yield:"500 g/m²",thc:"6‑8%",cbd:"10‑15%",difficulty:"Média",notes:"CBD rico; clareza sem ansiedade.",size:"medium"},
         {name:"Green Crack",type:"Fotoperíodo",genetics:"Skunk #1 descendant",flower:"7‑9 sem",yield:"600 g/m²",thc:"17‑21%",cbd:"<1%",difficulty:"Fácil",notes:"Energético; mangóide.",size:"tall"}
       ]},
-      {category:"Sono profundo / Ansiedade",clade:"Linalol",color:"#60a5fa",aroma:"Lavanda, camomila",bp:"198 °C",effects:"Calmante, indutor do sono",uses:"Insônia, dor neuropática, convulsões",times:["night"],strains:[
+      {icon:"🌸",category:"Sono profundo / Ansiedade",clade:"Linalol",color:"#BFDBFE",aroma:"Lavanda, camomila",bp:"198 °C",effects:"Calmante, indutor do sono",uses:"Insônia, dor neuropática, convulsões",times:["night"],strains:[
         {name:"Lavender Gelato",type:"Fotoperíodo",genetics:"Lavender x Gelato",flower:"9‑10 sem",yield:"Medium",thc:"19‑22%",cbd:"<1%",difficulty:"Média",notes:"Perfil floral doce; relax.",size:"medium"},
         {name:"Zkittlez",type:"Fotoperíodo",genetics:"Grape Ape x Grapefruit",flower:"8‑9 sem",yield:"550 g/m²",thc:"18‑22%",cbd:"≈1%",difficulty:"Média",notes:"Cores lindas e sabor frutado.",size:"medium"}
       ]},
-      {category:"Energia & Sociabilidade",clade:"Ocimene",color:"#818cf8",aroma:"Doce, frutado, herbáceo",bp:"198 °C",effects:"Energizante e descongestionante",uses:"—",times:["morning"],strains:[
+      {icon:"🍇",category:"Energia & Sociabilidade",clade:"Ocimene",color:"#DDD6FE",aroma:"Doce, frutado, herbáceo",bp:"198 °C",effects:"Energizante e descongestionante",uses:"—",times:["morning"],strains:[
         {name:"Golden Goat",type:"Fotoperíodo",genetics:"Hawaiian x Romulan",flower:"9‑11 sem",yield:"High",thc:"20‑24%",cbd:"≈1%",difficulty:"Média",notes:"Alegria social; aroma tropical.",size:"tall"},
         {name:"Strawberry Cough",type:"Fotoperíodo",genetics:"Haze x Strawberry Fields",flower:"9‑10 sem",yield:"High",thc:"17‑20%",cbd:"<1%",difficulty:"Média",notes:"Sabor morango; tosse característica.",size:"tall"}
       ]},
-      {category:"Criatividade / High cerebral",clade:"Terpinoleno",color:"#d946ef",aroma:"Maçã verde, lilás, sálvia",bp:"186 °C",effects:"Estimulante mental, euforia leve",uses:"Antioxidante, sedativo leve",times:["morning","afternoon"],strains:[
+      {icon:"🍏",category:"Criatividade / High cerebral",clade:"Terpinoleno",color:"#F5D0FE",aroma:"Maçã verde, lilás, sálvia",bp:"186 °C",effects:"Estimulante mental, euforia leve",uses:"Antioxidante, sedativo leve",times:["morning","afternoon"],strains:[
         {name:"Jack Herer",type:"Fotoperíodo",genetics:"Haze x Northern Lights x Shiva Skunk",flower:"8‑9 sem",yield:"600 g/m²",thc:"18‑24%",cbd:"<1%",difficulty:"Média",notes:"High criativo; sabor especiado.",size:"tall"},
         {name:"Ghost Train Haze",type:"Fotoperíodo",genetics:"Ghost OG x Neville's Wreck",flower:"10‑12 sem",yield:"High",thc:"23‑27%",cbd:"<1%",difficulty:"Alta",notes:"Potência extrema; aroma cítrico-pinho.",size:"tall"}
       ]}
@@ -137,18 +138,17 @@
     /* ------------------ WHEEL ------------------ */
     const size=Math.min(600,window.innerWidth-40);let radius=size/2;
     const svg=d3.select('#wheel').append('svg').attr('width',size).attr('height',size).append('g').attr('transform',`translate(${radius},${radius})`);
-    const pie=d3.pie().sort(null).value(1);let arc=d3.arc().outerRadius(radius-8).innerRadius(radius*.45);let labelArc=d3.arc().outerRadius(radius*.8).innerRadius(radius*.8);
+    const pie=d3.pie().sort(null).value(1).padAngle(0.02);
+    let arc=d3.arc().outerRadius(radius-10).innerRadius(radius*.45);
+    let labelArc=d3.arc().outerRadius(radius*.8).innerRadius(radius*.8);
     const tooltip=d3.select('#tooltip');
-    const slices=svg.selectAll('path').data(pie(data)).enter().append('path').attr('d',arc).attr('fill',d=>d.data.color).attr('stroke','#fff').attr('stroke-width',2).style('cursor','pointer')
+    const slices=svg.selectAll('path').data(pie(data)).enter().append('path').attr('d',arc).attr('fill',d=>d.data.color).attr('stroke','#fff').attr('stroke-width',1).style('cursor','pointer').style('filter','drop-shadow(0 1px 2px rgba(0,0,0,0.05))')
       .on('mousemove',(e,d)=>{tooltip.style('opacity',1).html(`<strong>${d.data.category}</strong>`).style('left',e.pageX+12+'px').style('top',e.pageY-28+'px');})
       .on('mouseout',()=>tooltip.style('opacity',0))
       .on('click',(_,d)=>showInfo(d.data));
-    svg.selectAll('text').data(pie(data)).enter().append('text').attr('transform',d=>`translate(${labelArc.centroid(d)}) rotate(${angle(d)})`).attr('text-anchor','middle').attr('dominant-baseline','middle').attr('class','text-[10px] sm:text-xs font-semibold fill-white pointer-events-none').text(d=>d.data.clade);
-    function angle(d){const a=((d.startAngle+d.endAngle)/2)*(180/Math.PI);return(a>90&&a<270)?a+180:a;}
-
-    /* Beauty gradient */
-    svg.append('circle').attr('r',radius*.45).attr('fill','url(#grad)');
-    const defs=svg.append('defs');defs.append('radialGradient').attr('id','grad').selectAll('stop').data([[0,'#ffffff10'],[1,'#ffffff00']]).enter().append('stop').attr('offset',d=>d[0]).attr('stop-color',d=>d[1]);
+    const labels=svg.selectAll('g.label').data(pie(data)).enter().append('g').attr('class','label').attr('transform',d=>`translate(${labelArc.centroid(d)})`);
+    labels.append('text').attr('text-anchor','middle').attr('class','text-[11px] font-bold fill-gray-800 dark:fill-gray-200 pointer-events-none').text(d=>`${d.data.icon} ${d.data.clade}`);
+    labels.append('text').attr('text-anchor','middle').attr('y',12).attr('class','text-[9px] fill-gray-600 dark:fill-gray-400 pointer-events-none').text(d=>d.data.effects);
 
     /* ------------------ CARD GRID ------------------ */
     const cardGrid=document.getElementById('cardGrid');
@@ -156,7 +156,7 @@
 
     /* ------------------ LEGEND ------------------ */
     const legend=document.getElementById('legend');
-    data.forEach(d=>{const div=document.createElement('div');div.className='flex items-center gap-2 justify-center';div.innerHTML=`<span class='w-4 h-4 rounded-full inline-block' style='background:${d.color}'></span><span>${d.clade}</span>`;legend.appendChild(div);});
+    data.forEach(d=>{const div=document.createElement('div');div.className='flex items-center gap-2 justify-center';div.innerHTML=`<span class='w-4 h-4 rounded-full inline-block' style='background:${d.color}'></span><span>${d.icon} ${d.clade}</span>`;legend.appendChild(div);});
 
     /* ------------------ INFO PANEL ------------------ */
     let currentData=null;function showInfo(item){currentData=item;const panel=document.getElementById('info');panel.classList.remove('hidden');document.getElementById('info-title').textContent=item.category;document.getElementById('info-clade').textContent=`Clade: ${item.clade}`;document.getElementById('info-aroma').textContent=item.aroma;document.getElementById('info-bp').textContent=item.bp;document.getElementById('info-effects').textContent=item.effects;document.getElementById('info-uses').textContent=item.uses||'—';const list=document.getElementById('info-strains');list.innerHTML='';item.strains.forEach(s=>{const btn=document.createElement('button');btn.className='bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-2 py-1 rounded flex items-center gap-1 text-xs';btn.innerHTML=`${grownStrains.has(s.name)?'⭐':'☆'}<span>${s.name}</span>`;btn.addEventListener('click',()=>openModal(s));list.appendChild(btn);});if(window.innerWidth<1024)panel.scrollIntoView({behavior:'smooth'});}  
@@ -181,7 +181,7 @@
     const toggleBtn=document.getElementById('toggleView');toggleBtn.addEventListener('click',()=>{wheelVisible=!wheelVisible;document.getElementById('wheelWrapper').classList.toggle('hidden',!wheelVisible);cardGrid.classList.toggle('hidden',wheelVisible);toggleBtn.textContent=wheelVisible?'Cards':'Roda';if(!wheelVisible)renderCards();else applyFilters();});
 
     /* ------------------ RESIZE ------------------ */
-    function resize(){const newSize=Math.min(600,window.innerWidth-40);radius=newSize/2;d3.select('#wheel svg').attr('width',newSize).attr('height',newSize).select('g').attr('transform',`translate(${radius},${radius})`);arc.outerRadius(radius-8).innerRadius(radius*.45);labelArc.outerRadius(radius*.8).innerRadius(radius*.8);svg.selectAll('path').attr('d',arc);svg.selectAll('text').attr('transform',d=>`translate(${labelArc.centroid(d)}) rotate(${angle(d)})`);}window.addEventListener('resize',resize);
+    function resize(){const newSize=Math.min(600,window.innerWidth-40);radius=newSize/2;d3.select('#wheel svg').attr('width',newSize).attr('height',newSize).select('g').attr('transform',`translate(${radius},${radius})`);arc.outerRadius(radius-10).innerRadius(radius*.45);labelArc.outerRadius(radius*.8).innerRadius(radius*.8);svg.selectAll('path').attr('d',arc);svg.selectAll('g.label').attr('transform',d=>`translate(${labelArc.centroid(d)})`);}window.addEventListener('resize',resize);
     </script>
   </body>
 </html>
